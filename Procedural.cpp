@@ -1,4 +1,10 @@
-// Procedural.cpp
+//******************************************
+// NAME:MOISES GONZALEZ
+// ORGN: CMPS 3500
+// DATE: 11/25/2025
+// OVER: Main File that runs all algorithms
+//******************************************
+
 #include <iostream>
 #include <vector>
 #include <string>
