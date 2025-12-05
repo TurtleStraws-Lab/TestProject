@@ -24,4 +24,3 @@ void loadData(const std::string& filename);
 void splitDataset(double trainFraction = 0.8);
 
 #endif
-

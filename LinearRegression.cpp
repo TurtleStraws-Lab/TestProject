@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-// ---------- Helper: transpose ----------
 std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>>& X) {
     if (X.empty()) return {};
     size_t rows = X.size();
@@ -17,7 +16,6 @@ std::vector<std::vector<double>> transpose(const std::vector<std::vector<double>
     return T;
 }
 
-// ---------- Helper: matrix multiply ----------
 std::vector<std::vector<double>> matmul(const std::vector<std::vector<double>>& A,
                                         const std::vector<std::vector<double>>& B) {
     if (A.empty() || B.empty()) return {};
@@ -36,25 +34,22 @@ std::vector<std::vector<double>> matmul(const std::vector<std::vector<double>>& 
     return C;
 }
 
-// ---------- Add λ to diagonal of XᵀX (ridge regularization) ----------
 std::vector<std::vector<double>> addLambda(const std::vector<std::vector<double>>& XTX,
                                            double lambda) {
     std::vector<std::vector<double>> A = XTX;
-
     for (size_t i = 0; i < A.size(); i++)
         A[i][i] += lambda;
-
     return A;
 }
 
-// ---------- Gaussian elimination solver ----------
 std::vector<double> solveLinearSystem(std::vector<std::vector<double>> A,
                                       std::vector<double> b) {
     size_t n = A.size();
 
     for (size_t i = 0; i < n; i++) {
         double pivot = A[i][i];
-        if (std::abs(pivot) < 1e-12) throw std::runtime_error("Singular matrix");
+        if (std::abs(pivot) < 1e-12) 
+            throw std::runtime_error("Singular matrix");
 
         for (size_t j = i; j < n; j++) A[i][j] /= pivot;
         b[i] /= pivot;
@@ -77,13 +72,11 @@ std::vector<double> solveLinearSystem(std::vector<std::vector<double>> A,
     return x;
 }
 
-// ---------- Fit Linear Regression (closed-form ridge) ----------
 LinearModel fit_linear(const std::vector<std::vector<double>>& X,
                        const std::vector<double>& y,
                        double lambda) {
     LinearModel model;
 
-    // Add bias column
     size_t n = X.size();
     size_t d = X[0].size();
 
@@ -94,15 +87,12 @@ LinearModel fit_linear(const std::vector<std::vector<double>>& X,
 
     auto X_T = transpose(Xb);
     auto XTX = matmul(X_T, Xb);
-    auto XTy = matmul(X_T, std::vector<std::vector<double>>{{}}); // ignore
 
-    // Compute Xᵀy
     std::vector<double> XTy_vec(d + 1, 0.0);
     for (size_t i = 0; i < d + 1; i++)
         for (size_t j = 0; j < n; j++)
             XTy_vec[i] += X_T[i][j] * y[j];
 
-    // Ridge regularization on weights only (bias unregularized)
     auto A = XTX;
     for (size_t i = 1; i < A.size(); i++)
         A[i][i] += lambda;
@@ -111,7 +101,6 @@ LinearModel fit_linear(const std::vector<std::vector<double>>& X,
     return model;
 }
 
-// ---------- Predict ----------
 std::vector<double> predict_linear(const LinearModel& model,
                                    const std::vector<std::vector<double>>& X) {
     size_t n = X.size();
@@ -120,7 +109,7 @@ std::vector<double> predict_linear(const LinearModel& model,
     std::vector<double> preds(n, 0.0);
 
     for (size_t i = 0; i < n; i++) {
-        double y = model.weights[d];  // bias
+        double y = model.weights[d];
         for (size_t j = 0; j < d; j++)
             y += model.weights[j] * X[i][j];
         preds[i] = y;
@@ -129,7 +118,6 @@ std::vector<double> predict_linear(const LinearModel& model,
     return preds;
 }
 
-// ---------- RMSE ----------
 double computeRMSE(const std::vector<double>& y_true,
                    const std::vector<double>& y_pred) {
     size_t n = y_true.size();
@@ -140,4 +128,3 @@ double computeRMSE(const std::vector<double>& y_true,
 
     return std::sqrt(sum / n);
 }
-
